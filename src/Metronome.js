@@ -6,8 +6,11 @@ import click2 from './click2.wav';
 
 function Metronome () {
     const [count, setCount] = useState({count: 0});
+
     const [playing, setPlaying] =useState({playing: false});
+
     const [bpm, setBpm] = useState ({bpm: 100});
+
     const [beatsPerMeasure, setNewBeatsPerMeasure] = useState({beatsPerMeasure: 4});
        
        const clickOne = new Audio(click1);
@@ -15,7 +18,7 @@ function Metronome () {
     
 
     function handleBpmChange (event, timer, playClick) {
-            const bpm = event.target.value;
+            const bpmChange = event.target.value;
 
             if (playing) {
                 //stop the old timer and start a new one
