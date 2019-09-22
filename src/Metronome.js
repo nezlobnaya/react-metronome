@@ -1,100 +1,92 @@
-import React, { Component } from 'react';
+import React, { useState, useReducer } from 'react';
 import './Metronome.css';
 import click1 from './click1.wav';
 import click2 from './click2.wav';
 
 
-class Metronome extends Component {
-    constructor(props) {
-        super(props);
-        this.click1 = new Audio(click1);
-        this.click2 = new Audio(click2);
+function Metronome () {
+    const [count, setCount] = useState({count: 0});
+    const [playing, setPlaying] =useState({playing: false});
+    const [bpm, setBpm] = useState ({bpm: 100});
+    const [beatsPerMeasure, setNewBeatsPerMeasure] = useState({beatsPerMeasure: 4});
+       
+       const clickOne = new Audio(click1);
+       const clickTwo = new Audio(click2);
     
-        this.state = {
-          playing: false,
-          count: 0,
-          bpm: 100,
-          beatsPerMeasure: 4
-        };
-    }
-    handleBpmChange = event => {
+
+    function handleBpmChange (event, timer, playClick) {
             const bpm = event.target.value;
 
-            if (this.state.playing) {
+            if (playing) {
                 //stop the old timer and start a new one
-                clearInterval(this.timer);
-                this.timer =setInterval(this.playClick, (60/bpm) *1000);
+                clearInterval(timer);
+                    timer =setInterval(playClick, (60/bpm) *1000);
 
                 //set the new bpm, and reset the beat counter
-                this.setState({
-                    count: 0,
-                    bpm
-                });
+                setBpm({count: 0,bpm });
             } else {
-                this.setState({ bpm })
+                setBpm()
             }
       };
+
+      function playClick(beatsPerMeasure) {
+          
+
+        //the first beat will have a different sound than the others
+        if (count % beatsPerMeasure === 0) {
+            clickTwo.play();
+        } else {
+            clickOne.play();
+        }
+
+        //keep track of which beat we're on
+        setCount(state => ({
+            count: (state.count + 1) % state.beatsPerMeasure
+        }));
+    }
+
     
-      startStop = () => {
-        if(this.state.playing) {
+      function startStop (timer)  {
+        if(playing) {
             //stop the timer
-            clearInterval(this.timer);
-            this.setState({
-                playing:false
-            });
+            clearInterval(timer);
+                setPlaying({playing:false});
         } else {
             //start a timer with the current BPM
-            this.timer = setInterval(
-                this.playClick, (60/ this.state.bpm) * 1000
-            );
-            this.setState(
+                timer = setInterval(playClick, (60/ bpm) * 1000);
+            setPlaying(
                 {
-                    count: 0,
-                    playing: true,
+                  count: 0,
+                  playing: true,
                     //play a click ''immediately'' (after setState finishes)
                 },
-                this.playClick
+                playClick
             );
         }
       }
 
-      playClick = () => {
-          const {count, beatsPerMeasure} =this.state;
 
-          //the first beat will have a different sound than the others
-          if (count % beatsPerMeasure === 0) {
-              this.click2.play();
-          } else {
-              this.click1.play();
-          }
+ 
 
-          //keep track of which beat we're on
-          this.setState(state => ({
-              count: (state.count + 1) % state.beatsPerMeasure
-          }));
-      }
-
-  render() {
-
-    const { playing, bpm } = this.state;
+    // const[playing, bpm] = useState();
 
     return (
       <div className="metronome">
         <div className="bpm-slider">
-          <div>{bpm} BPM</div>
+          <div> {bpm} BPM</div>
           <input
             type="range"
             min="30"
             max="340"
             value={bpm}
-            onChange={this.handleBpmChange} />
+            onChange={handleBpmChange} />
         </div>
-        <button onClick={this.startStop}>
+        <button onClick={startStop}>
           {playing ? 'Stop' : 'Start'}
         </button>
       </div>
     );
-  }
+  
  
 }
 
